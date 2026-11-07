@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="万能文件转换器 —— 纯前端、免上传、支持图片、文档、表格、数据与编码等数十种格式互转的在线工具箱。" />
+  <meta name="keywords" content="文件转换,格式转换,图片转PDF,Excel转JSON,Markdown转HTML,Base64,在线工具" />
+  <title>万能文件转换器 · 本地运行的格式转换工具箱</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%235a6bf5'/%3E%3Cpath d='M28 34h30l14 14v20H28z' fill='none' stroke='white' stroke-width='6' stroke-linejoin='round'/%3E%3Cpath d='M42 58h16M50 50v16' stroke='white' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- 可选增强组件：加载失败时对应功能会给出提示，核心功能仍可用 -->
+  <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/turndown@7.2.0/dist/turndown.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+  <script defer src="js/utils.js"></script>
+  <script defer src="js/converters.js"></script>
+  <script defer src="js/tools-extra.js"></script>
+  <script defer src="js/app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <path d="M14 2v6h6" /><path d="M9 15h6" /><path d="M12 12v6" />
+        </svg>
+      </div>
+      <div class="brand-text">
+        <strong>万能文件转换器</strong>
+        <span>Universal File Converter</span>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span class="privacy-badge" title="所有转换都在你的浏览器本地完成，文件不会上传到任何服务器">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        本地处理 · 文件不上传
+      </span>
+      <a class="icon-btn" id="repoLink" href="https://github.com/123fcgj/universal-file-converter" target="_blank" rel="noopener" title="查看源码">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.25.45-2.28 1.19-3.08-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.16 1.18a10.9 10.9 0 0 1 5.76 0c2.19-1.49 3.15-1.18 3.15-1.18.63 1.59.23 2.76.12 3.05.74.8 1.18 1.83 1.18 3.08 0 4.41-2.68 5.38-5.24 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+      <button class="icon-btn" id="themeToggle" type="button" title="切换深色 / 浅色主题" aria-label="切换主题">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="toolSearch" type="search" placeholder="搜索工具，如：PDF、Excel、Base64…" autocomplete="off" />
+      </div>
+      <div class="tool-count" id="toolCount"></div>
+      <nav id="toolNav" class="tool-nav" aria-label="工具列表"></nav>
+      <div class="sidebar-tip">
+        <strong>小提示</strong>
+        支持拖拽文件到虚线框，也可直接粘贴文本。批量转换会生成多个下载项。
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="workspace" id="workspace">
+        <div class="tool-header">
+          <div class="tool-header-icon" id="toolIcon">🖼️</div>
+          <div>
+            <div class="tool-header-meta" id="toolCategory">图片与视觉</div>
+            <h1 id="toolName">图片格式转换</h1>
+            <p id="toolDesc"></p>
+            <div class="tool-tags" id="toolTags"></div>
+          </div>
+        </div>
+
+        <div class="card input-card">
+          <div class="card-head"><h2>输入</h2><span class="card-hint" id="inputHint"></span></div>
+          <div id="dropZone" class="drop-zone" hidden>
+            <input type="file" id="fileInput" multiple hidden />
+            <div class="drop-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4m0 0L7 9m5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+            </div>
+            <p class="drop-title">把文件拖到这里，或 <span class="link-like">点击选择</span></p>
+            <p class="drop-sub" id="acceptHint"></p>
+            <div class="file-list" id="fileList"></div>
+          </div>
+          <div id="textInputWrap" hidden>
+            <textarea id="textInput" spellcheck="false" placeholder="在此粘贴或输入内容…"></textarea>
+            <div class="textarea-foot"><span id="textMeta">0 字符</span><button type="button" class="mini-btn" id="pasteBtn">粘贴</button></div>
+          </div>
+        </div>
+
+        <div class="card options-card" id="optionsCard" hidden>
+          <div class="card-head"><h2>选项</h2></div>
+          <div class="options-grid" id="optionsGrid"></div>
+        </div>
+
+        <div class="action-bar">
+          <button type="button" class="btn btn-primary" id="runBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 3 14 9-14 9V3z"/></svg>
+            <span id="runBtnText">开始转换</span>
+          </button>
+          <button type="button" class="btn btn-ghost" id="clearBtn">清空</button>
+          <span class="run-status" id="runStatus"></span>
+        </div>
+
+        <div class="card result-card" id="resultCard" hidden>
+          <div class="card-head">
+            <h2>转换结果 <span class="result-count" id="resultCount"></span></h2>
+            <button type="button" class="mini-btn" id="downloadAllBtn" hidden>下载全部</button>
+          </div>
+          <div id="results" class="results"></div>
+          <p class="result-note" id="resultNote" hidden></p>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <p>🔒 全部转换在浏览器本地完成，文件不会离开你的设备 · 无需登录 · 永久免费</p>
+        <p class="footer-sub">由纯静态页面构建，托管于 GitHub Pages。部分高级格式依赖在线组件，加载失败时会给出提示。</p>
+      </footer>
+    </main>
+  </div>
+
+  <div id="toastBox" class="toast-box" aria-live="polite"></div>
+
+  <noscript><p style="padding:24px;text-align:center">本站需要启用 JavaScript 才能运行文件转换功能。</p></noscript>
+</body>
+</html>
