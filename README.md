@@ -3,7 +3,10 @@
 一个**纯前端、免上传**的在线文件格式转换工具箱，托管于 GitHub Pages。
 所有文件都在你的浏览器本地处理，不会上传到任何服务器，也不需要登录。
 
-🔗 在线地址：https://123fcgj.github.io/universal-file-converter/
+🔗 在线地址：https://hdows-tm.github.io/universal-file-converter/
+📦 源码仓库：https://github.com/HDOWS-TM/universal-file-converter
+
+> 提示：GitHub 用户名变更后，Pages 域名会随之变为 `https://<新用户名>.github.io/universal-file-converter/`，旧 Pages 地址会失效；仓库页面地址则会自动重定向。
 
 ## 功能一览（29 个工具）
 
